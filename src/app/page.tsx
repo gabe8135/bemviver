@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import Modal from '@/components/Modal';
 
 type FormState = {
@@ -37,6 +38,15 @@ function getNextBusinessLabels(dates: string[]) {
 }
 
 export default function HomePage() {
+  const prefersReduced = useReducedMotion();
+  const fadeUp = {
+    hidden: { opacity: 0, y: prefersReduced ? 0 : 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  };
+  const containerStagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: prefersReduced ? 0 : 0.08 } },
+  };
   const [form, setForm] = useState<FormState>({
     name: '',
     phone: '',
@@ -117,20 +127,28 @@ export default function HomePage() {
         <FadeImageMobile />
   <div className="container pt-6 pb-16 md:py-16 relative">
           <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">Clínica BemViver</h1>
-              <p className="mt-4 text-lg text-gray-600 max-w-2xl">Cuide da sua saúde com rapidez e praticidade. Agende sua consulta online e receba confirmação automática no WhatsApp.</p>
-              <div className="mt-6 flex gap-3">
-                <a href="#agendar" className="btn-primary shadow-glow">Agendar agora</a>
-                <a href="#beneficios" className="btn-outline">Saiba mais</a>
-              </div>
-            </div>
+            <motion.div variants={containerStagger} initial="hidden" animate="show">
+              <motion.h1 variants={fadeUp} className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">Clínica BemViver</motion.h1>
+              <motion.p variants={fadeUp} className="mt-4 text-lg text-gray-600 max-w-2xl">Cuide da sua saúde com rapidez e praticidade. Agende sua consulta online e receba confirmação automática no WhatsApp.</motion.p>
+              <motion.div variants={fadeUp} className="mt-6 flex gap-3">
+                <a href="#agendar" className="btn-primary shadow-glow rounded-xl">Agendar agora</a>
+                <a href="#beneficios" className="btn-outline rounded-xl">Saiba mais</a>
+              </motion.div>
+            </motion.div>
             {/* Imagem em caixa apenas em telas md+ */}
             <div className="relative order-first md:order-none hidden md:block">
               <img src="/images/agendamento.jpg" alt="Profissional de saúde atendendo ao telefone" className="w-full h-auto rounded-2xl border border-gray-200 shadow-lg" />
             </div>
             {/* Formulário em cartão */}
-            <form id="agendar" onSubmit={onSubmit} className="card p-6 w-full space-y-4 md:col-span-2 lg:col-span-1 bg-blue-50/70 border-blue-100">
+            <motion.form
+              id="agendar"
+              onSubmit={onSubmit}
+              className="card p-6 w-full space-y-4 md:col-span-2 lg:col-span-1 bg-blue-50/70 border-blue-100"
+              initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
               <h3 className="text-xl font-semibold text-gray-900">Agende sua consulta</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1 md:col-span-2">
@@ -228,7 +246,7 @@ export default function HomePage() {
               {message && (
                 <p className="text-sm text-red-300">{message}</p>
               )}
-            </form>
+            </motion.form>
           </div>
         </div>
       </section>
@@ -236,21 +254,28 @@ export default function HomePage() {
       {/* Seção de benefícios */}
       <section id="beneficios" className="py-16">
         <div className="container">
-          <h2 className="text-2xl font-semibold">Por que escolher a BemViver?</h2>
-          <div className="mt-6 grid md:grid-cols-3 gap-6">
-            <div className="card p-5">
-              <h4 className="font-semibold text-gray-900">Agendamento em minutos</h4>
-              <p className="text-sm text-gray-600 mt-2">Escolha data e horário de forma prática, sem burocracia.</p>
-            </div>
-            <div className="card p-5">
-              <h4 className="font-semibold text-gray-900">Confirmação no WhatsApp</h4>
-              <p className="text-sm text-gray-600 mt-2">Receba confirmação e lembretes diretamente no seu WhatsApp.</p>
-            </div>
-            <div className="card p-5">
-              <h4 className="font-semibold text-gray-900">Cuidado de ponta a ponta</h4>
-              <p className="text-sm text-gray-600 mt-2">Equipe dedicada e processos automatizados para você.</p>
-            </div>
-          </div>
+          <motion.h2 initial={{ opacity: 0, y: prefersReduced ? 0 : 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-2xl font-semibold">Por que escolher a BemViver?</motion.h2>
+          <motion.div variants={containerStagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} className="mt-6 grid md:grid-cols-3 gap-6">
+            {[
+              {
+                t: 'Agendamento em minutos',
+                d: 'Escolha data e horário de forma prática, sem burocracia.'
+              },
+              {
+                t: 'Confirmação no WhatsApp',
+                d: 'Receba confirmação e lembretes diretamente no seu WhatsApp.'
+              },
+              {
+                t: 'Cuidado de ponta a ponta',
+                d: 'Equipe dedicada e processos automatizados para você.'
+              },
+            ].map((item, idx) => (
+              <motion.div key={idx} variants={fadeUp} className="card p-5">
+                <h4 className="font-semibold text-gray-900">{item.t}</h4>
+                <p className="text-sm text-gray-600 mt-2">{item.d}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
