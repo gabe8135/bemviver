@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Modal from '@/components/Modal';
 
 type FormState = {
@@ -110,9 +110,12 @@ export default function HomePage() {
   return (
     <main>
       {/* Hero sofisticado */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero-gradient opacity-60 pointer-events-none" />
-        <div className="container py-16 relative">
+  <section className="relative overflow-hidden">
+  <div className="absolute inset-0 bg-hero-gradient pointer-events-none opacity-90 md:opacity-70" />
+        {/* Sem background fixo; usaremos imagem com recorte e fade on scroll */}
+        {/* Imagem full-bleed no mobile com ondulação */}
+        <FadeImageMobile />
+  <div className="container pt-6 pb-16 md:py-16 relative">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">Clínica BemViver</h1>
@@ -122,24 +125,25 @@ export default function HomePage() {
                 <a href="#beneficios" className="btn-outline">Saiba mais</a>
               </div>
             </div>
-            <div className="relative order-first md:order-none">
+            {/* Imagem em caixa apenas em telas md+ */}
+            <div className="relative order-first md:order-none hidden md:block">
               <img src="/images/agendamento.jpg" alt="Profissional de saúde atendendo ao telefone" className="w-full h-auto rounded-2xl border border-gray-200 shadow-lg" />
             </div>
             {/* Formulário em cartão */}
-            <form id="agendar" onSubmit={onSubmit} className="card p-6 w-full space-y-4 md:col-span-2 lg:col-span-1">
-              <h3 className="text-xl font-semibold">Agende sua consulta</h3>
+            <form id="agendar" onSubmit={onSubmit} className="card p-6 w-full space-y-4 md:col-span-2 lg:col-span-1 bg-blue-50/70 border-blue-100">
+              <h3 className="text-xl font-semibold text-gray-900">Agende sua consulta</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-sm font-medium">Nome completo</label>
-                  <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full rounded-md px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="Seu nome" />
+                  <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full rounded-xl px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="Seu nome" />
                 </div>
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-sm font-medium">WhatsApp</label>
-                  <input required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="w-full rounded-md px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="(11) 99999-9999" />
+                  <input required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="w-full rounded-xl px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="(11) 99999-9999" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Serviço</label>
-                  <select value={form.service} onChange={e => setForm(f => ({ ...f, service: e.target.value }))} className="w-full rounded-md px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40">
+                  <select value={form.service} onChange={e => setForm(f => ({ ...f, service: e.target.value }))} className="w-full rounded-xl px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40">
                     {services.map(s => (
                       <option key={s.id} value={s.id}>{s.label}</option>
                     ))}
@@ -174,7 +178,7 @@ export default function HomePage() {
                             type="button"
                             onClick={() => setForm(f => ({ ...f, date, time: '' }))}
                             disabled={fullBlocked}
-                            className={`rounded-md border px-3 py-2 text-sm ${selected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-900 border-gray-300'} ${fullBlocked ? 'cursor-not-allowed' : hoverClass} ${fullBlockedStyle}`}
+                            className={`rounded-xl border px-3 py-2 text-sm ${selected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-900 border-gray-300'} ${fullBlocked ? 'cursor-not-allowed' : hoverClass} ${fullBlockedStyle}`}
                             title={fullBlocked ? 'Sem vagas neste dia' : ''}
                           >
                             {label}
@@ -203,7 +207,7 @@ export default function HomePage() {
                             type="button"
                             onClick={() => setForm(f => ({ ...f, time: t }))}
                             disabled={blocked}
-                            className={`rounded-md border px-3 py-2 text-sm ${selected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-900 border-gray-300'} ${blocked ? 'cursor-not-allowed' : hoverClass} ${blockedStyle}`}
+                            className={`rounded-xl border px-3 py-2 text-sm ${selected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-900 border-gray-300'} ${blocked ? 'cursor-not-allowed' : hoverClass} ${blockedStyle}`}
                             title={blocked ? 'Horário indisponível' : ''}
                           >
                             {t}
@@ -215,7 +219,7 @@ export default function HomePage() {
                 </div>
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-sm font-medium">Observações</label>
-                  <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="w-full rounded-md px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="Informações adicionais (opcional)" rows={3} />
+                  <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="w-full rounded-xl px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="Informações adicionais (opcional)" rows={3} />
                 </div>
               </div>
               <button disabled={submitting || !form.date || !form.time} className="btn-primary disabled:opacity-60">
@@ -267,5 +271,42 @@ export default function HomePage() {
         </p>
       </Modal>
     </main>
+  );
+}
+
+// Componente: imagem no mobile com recorte diagonal e fade conforme rolagem
+function FadeImageMobile() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => {
+      // Distância rolada relativa à altura do bloco
+      const rect = el.getBoundingClientRect();
+      const total = (rect.height || 1) * 0.6; // fade ainda mais rápido (60% da altura)
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      const progress = Math.max(0, Math.min(1, scrolled / total));
+      // Opacidade cai rápido no início: (1 - x)^3
+      const opacity = Math.pow(1 - progress, 3);
+      setOpacity(opacity);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <div className="relative md:hidden w-full overflow-hidden" ref={ref}>
+      <img
+        src="/images/agendamento.jpg"
+        alt="Profissional de saúde atendendo ao telefone"
+        className="w-full h-auto block max-w-none"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 0 100%)', opacity }}
+      />
+      {/* Espaço abaixo para acomodar o fade sumindo */}
+      <div className="h-1" />
+    </div>
   );
 }
