@@ -8,6 +8,7 @@ export default function Footer() {
           <a href="#agendar" className="hover:underline">Agendar</a>
           <a href="mailto:contato@bemviver.com" className="hover:underline">Contato</a>
         </nav>
+        <p className="text-xs text-gray-500">Landing Page desenvolvida por <a href="https://vempracaapp.com" target="_blank" className="underline hover:text-gray-700">Gabriel Ramos</a></p>
       </div>
     </footer>
   );

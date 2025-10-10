@@ -139,6 +139,19 @@ export default function HomePage() {
             <div className="relative order-first md:order-none hidden md:block">
               <img src="/images/agendamento.jpg" alt="Profissional de saúde atendendo ao telefone" className="w-full h-auto rounded-2xl border border-gray-200 shadow-lg" />
             </div>
+            {/* Subtítulo de autoridade acima do card de agendamento */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              className="md:col-span-2 lg:col-span-1 -mt-4 mb-1"
+            >
+              <div className="inline-flex items-center gap-2 text-blue-700 text-xs font-medium">
+                <span>⚡</span>
+                <span>Agendamentos confirmados em segundos</span>
+              </div>
+            </motion.div>
             {/* Formulário em cartão */}
             <motion.form
               id="agendar"
@@ -247,6 +260,24 @@ export default function HomePage() {
                 <p className="text-sm text-red-300">{message}</p>
               )}
             </motion.form>
+          </div>
+        </div>
+      </section>
+
+      {/* Como funciona */}
+      <section id="como-funciona" className="py-14">
+        <div className="container">
+          <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-2xl font-semibold">Como funciona</motion.h2>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[{n:1, t:'Escolha o serviço', d:'Selecione o tipo de atendimento ideal para você.'}, {n:2, t:'Selecione o horário', d:'Veja os dias e horários disponíveis em tempo real.'}, {n:3, t:'Receba confirmação', d:'Confirmação e lembrete automático no WhatsApp.'}].map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45, delay: i*0.06 }} className="card p-5 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold">{s.n}</div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">{s.t}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{s.d}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
