@@ -46,14 +46,34 @@ export async function POST(req: NextRequest) {
   }
   const input = parse.data;
 
+  // Normalização de telefone para E.164 simplificado (assumindo BR +55 se não houver DDI)
+  const digits = input.phone.replace(/\D+/g, '');
+  const e164 = digits.startsWith('55') ? `+${digits}` : `+55${digits}`;
+
+  // Normalizar horário para HH:mm:ss para padronizar com a base
+  const timeSQL = `${input.time}:00`;
+
   let saved: unknown = input;
   if (supabase) {
+    // Checar conflito: mesmo serviço, data e horário já ocupados
+    const { data: existing, error: existingErr } = await supabase
+      .from('appointments')
+      .select('id')
+      .eq('service', input.service)
+      .eq('date', input.date)
+      .eq('time', timeSQL)
+      .limit(1)
+      .maybeSingle();
+    if (!existingErr && existing) {
+      return NextResponse.json({ message: 'Horário já ocupado para este serviço.' }, { status: 409 });
+    }
+
     const { data, error } = await supabase.from('appointments').insert({
       name: input.name,
-      phone: input.phone,
+      phone: e164,
       service: input.service,
       date: input.date,
-      time: input.time,
+      time: timeSQL,
       notes: input.notes || null,
       source: 'landing',
     }).select('*').single();
@@ -65,7 +85,7 @@ export async function POST(req: NextRequest) {
 
   await Promise.all([
     notifyWebhook(saved),
-    notifyWhatsApp(input.name, input.phone, input.date, input.time),
+    notifyWhatsApp(input.name, e164, input.date, input.time),
   ]);
 
   return NextResponse.json({ ok: true, appointment: saved });
