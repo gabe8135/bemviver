@@ -8,6 +8,7 @@ create table if not exists public.appointments (
   time time not null,
   notes text,
   source text default 'landing',
+  status text default 'pending',
   created_at timestamptz default now()
 );
 
@@ -19,3 +20,6 @@ create policy if not exists appointments_select on public.appointments
 
 create policy if not exists appointments_insert on public.appointments
   for insert with check (true);
+
+-- Índice único opcional para evitar duplicidade de slot por serviço
+create unique index if not exists uniq_service_date_time on public.appointments(service, date, time);

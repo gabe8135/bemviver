@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { normalizePhoneE164Br, sendWhatsAppTemplate, sendWhatsAppText } from '@/lib/whatsapp';
 import { supabase } from '@/lib/supabase';
 
 const appointmentSchema = z.object({
@@ -23,19 +24,39 @@ async function notifyWebhook(payload: unknown) {
   } catch {}
 }
 
-async function notifyWhatsApp(name: string, phone: string, date: string, time: string) {
-  if (!env.WHATSAPP_API_URL || !env.WHATSAPP_API_TOKEN) return;
-  const msg = `Olá ${name}! Seu agendamento na BemViver para ${date} às ${time} foi recebido. Responda 1 para confirmar.`;
-  try {
-    await fetch(env.WHATSAPP_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${env.WHATSAPP_API_TOKEN}`,
-      },
-      body: JSON.stringify({ to: phone, message: msg }),
-    });
-  } catch {}
+async function notifyWhatsApp(name: string, phoneE164: string, date: string, time: string) {
+  // Prefer WhatsApp Cloud API
+  if (env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID) {
+    const useTemplate = (env.WHATSAPP_USE_TEMPLATE || '').toLowerCase() === 'true';
+    const tpl = useTemplate ? env.WHATSAPP_TEMPLATE_CLIENT : undefined;
+    if (tpl) {
+      const params = tpl === 'hello_world' ? [] : [name, `${date} ${time}`];
+      await sendWhatsAppTemplate(phoneE164, tpl, params).catch(() => undefined);
+    } else {
+      const msg = `Olá ${name}! Seu agendamento na BemViver para ${date} às ${time} foi recebido. Responda 1 para confirmar.`;
+      await sendWhatsAppText(phoneE164, msg).catch(() => undefined);
+    }
+    // Notify owner if configured
+    if (env.WHATSAPP_OWNER_NUMBER) {
+      const ownerMsg = `Novo agendamento: ${name} em ${date} às ${time}. Tel: ${phoneE164}`;
+      await sendWhatsAppText(env.WHATSAPP_OWNER_NUMBER, ownerMsg).catch(() => undefined);
+    }
+    return;
+  }
+  // Legacy custom webhook sender fallback
+  if (env.WHATSAPP_API_URL && env.WHATSAPP_API_TOKEN) {
+    const msg = `Olá ${name}! Seu agendamento na BemViver para ${date} às ${time} foi recebido.`;
+    try {
+      await fetch(env.WHATSAPP_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${env.WHATSAPP_API_TOKEN}`,
+        },
+        body: JSON.stringify({ to: phoneE164, message: msg }),
+      });
+    } catch {}
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -47,8 +68,7 @@ export async function POST(req: NextRequest) {
   const input = parse.data;
 
   // Normalização de telefone para E.164 simplificado (assumindo BR +55 se não houver DDI)
-  const digits = input.phone.replace(/\D+/g, '');
-  const e164 = digits.startsWith('55') ? `+${digits}` : `+55${digits}`;
+  const e164 = normalizePhoneE164Br(input.phone);
 
   // Normalizar horário para HH:mm:ss para padronizar com a base
   const timeSQL = `${input.time}:00`;
