@@ -82,7 +82,7 @@ export function normalizePhoneE164Br(phone: string) {
     const cleaned = '+' + raw.replace(/[^\d]/g, '');
     return cleaned;
   }
-  let digits = raw.replace(/\D+/g, '');
+  const digits = raw.replace(/\D+/g, '');
   // Convert 00CC... to +CC...
   if (digits.startsWith('00')) {
     return '+' + digits.slice(2);
