@@ -34,7 +34,13 @@ async function notifyWhatsApp(name: string, phoneE164: string, date: string, tim
       await sendWhatsAppTemplate(phoneE164, tpl, params).catch(() => undefined);
     } else {
       const msg = `Olá ${name}! Seu agendamento na BemViver para ${date} às ${time} foi recebido. Responda 1 para confirmar.`;
-      await sendWhatsAppText(phoneE164, msg).catch(() => undefined);
+      const textRes = await sendWhatsAppText(phoneE164, msg).catch(() => undefined);
+      // Fallback: se fora da janela de 24h ou outra falha, tente template para iniciar sessão
+      if (textRes && !textRes.ok) {
+        const fallbackTpl = env.WHATSAPP_TEMPLATE_CLIENT || 'hello_world';
+        const params = fallbackTpl === 'hello_world' ? [] : [name, `${date} ${time}`];
+        await sendWhatsAppTemplate(phoneE164, fallbackTpl, params).catch(() => undefined);
+      }
     }
     // Notify owner if configured
     if (env.WHATSAPP_OWNER_NUMBER) {
