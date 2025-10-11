@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     // Verify token and assets from production environment
     const base = 'https://graph.facebook.com/v22.0';
     const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${env.WHATSAPP_TOKEN}` } as const;
-    const results: any = {};
+  const results: Record<string, unknown> = {};
     try {
       const me = await fetch(`${base}/me?fields=id,name`, { headers });
       results.me = { status: me.status, data: await me.json().catch(() => ({})) };
