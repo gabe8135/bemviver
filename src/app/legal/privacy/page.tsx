@@ -6,7 +6,7 @@ export default function PrivacyPolicyPage() {
 
       <h2>Quem somos</h2>
       <p>
-        Este site pertence à BemViver ("nós"). Utilizamos este site para
+        Este site pertence à BemViver (&quot;nós&quot;). Utilizamos este site para
         divulgação de serviços e para facilitar o agendamento online.
       </p>
 

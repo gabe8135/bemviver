@@ -24,7 +24,7 @@ export default function TermsOfServicePage() {
 
       <h2>Limitação de responsabilidade</h2>
       <p>
-        O serviço é fornecido "como está". Não nos responsabilizamos por indisponibilidades
+        O serviço é fornecido &quot;como está&quot;. Não nos responsabilizamos por indisponibilidades
         temporárias, falhas de terceiros ou eventos fora do nosso controle.
       </p>
 

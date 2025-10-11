@@ -6,8 +6,8 @@ export default function DataDeletionPage() {
 
       <h2>Como solicitar exclusão</h2>
       <p>
-        Para solicitar a exclusão dos seus dados pessoais, envie um e-mail para
-        <strong> ramos.analista@gmail.com</strong> com o assunto: "Exclusão de Dados — BemViver".
+  Para solicitar a exclusão dos seus dados pessoais, envie um e-mail para
+  <strong> ramos.analista@gmail.com</strong> com o assunto: &quot;Exclusão de Dados — BemViver&quot;.
       </p>
       <p>
         Inclua no corpo do e-mail as seguintes informações para identificação:
