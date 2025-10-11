@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { env } from '@/lib/env';
-import { sendWhatsAppText } from '@/lib/whatsapp';
+import { sendWhatsAppText, sendWhatsAppTemplate } from '@/lib/whatsapp';
 
 function unauthorized(message = 'Unauthorized') {
   return NextResponse.json({ message }, { status: 401, headers: { 'WWW-Authenticate': 'Basic realm="bemviver"' } });
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const mode = (searchParams.get('mode') || '').toLowerCase();
+  const kind = (searchParams.get('kind') || 'text').toLowerCase(); // 'text' | 'template'
   const to = (searchParams.get('to') || '').trim();
   const text = (searchParams.get('text') || 'Teste WhatsApp (prod)').trim();
   if (mode !== 'ping' && !to) return NextResponse.json({ message: 'Missing to param (digits only, e.g., 5511999999999)' }, { status: 400 });
@@ -49,6 +50,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, checks: results });
   }
 
-  const result = await sendWhatsAppText('+' + to, text);
-  return NextResponse.json({ result });
+  if (kind === 'template') {
+    const name = (searchParams.get('template') || 'hello_world').trim();
+    const result = await sendWhatsAppTemplate('+' + to, name, name === 'hello_world' ? [] : undefined);
+    return NextResponse.json({ result });
+  } else {
+    const result = await sendWhatsAppText('+' + to, text);
+    return NextResponse.json({ result });
+  }
 }
